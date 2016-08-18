@@ -23,6 +23,6 @@ def load_data(InputLayerSize,OutputLayerSize,file):
     Val_d = [np.reshape(d,(InputLayerSize,1)) for d in ValidationData[0]]
     ValidationData = zip(Val_d,ValidationData[1])
     Tst_d = [np.reshape(d,(InputLayerSize,1)) for d in TestData[0]]
-    Tst_l = [build_result_vector(y,OutputLayerSize) for y in TestData[1]]
+    Tst_l = TestData[1]
     TestData = zip(Tst_d,Tst_l)
     return (TrainData,ValidationData,TestData)
