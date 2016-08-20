@@ -40,7 +40,7 @@ class Network(object):
             actvs.append(actv)
         # --------- backward propagate ---------
         # for the last layer
-        delta = sqr_cost_derivate(actvs[-1],RefResult)
+        delta = cross_entropy_cost_derivate(actvs[-1], RefResult)
         # foundation equation 3
         nabla_b[-1] = delta
         # foundation equation 4
@@ -100,7 +100,7 @@ class Network(object):
                 print("Round {0} train finished ...".format(i))
 
 # calculate derivate of square cost function
-def sqr_cost_derivate(OutputActivation,ReferenceResult):
+def cross_entropy_cost_derivate(OutputActivation, ReferenceResult):
     return OutputActivation - ReferenceResult
 
 # sigmoid functions
