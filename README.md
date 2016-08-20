@@ -1,4 +1,4 @@
-# DeepLearningTutorial
+# Deep Learning Tutorial
 
 My code works and notes to the online course "Neural Networks and Deep Learning" by Michael Nielsen.
 
