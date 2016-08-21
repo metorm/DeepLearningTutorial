@@ -17,8 +17,9 @@ TrainData, ValidationData, TestData = mnist_loader.load_data(InputLayerSize, Out
 print('Data loaded.')
 
 # super parameters
-mini_batch_size = 10
-train_round = 1
+mini_batch_size = 30
+train_round = 10
+eta = 0.01
 
 # create layers
 from ConvPoolingLayer import ConvPoolingLayer
@@ -32,17 +33,31 @@ CPLayer = ConvPoolingLayer(input_shape=(mini_batch_size, 1, InputH, InputW), fil
 FLayer = FullyConnectedLayer(n_in= 20*12*12, n_out= 100)
 SmLayer = SoftmaxLayer(n_in=100,n_out=10)
 
+
 # arrange input data
 for TR in xrange(train_round):
     random.shuffle(TrainData)
     mini_batches = [TrainData[k:k + mini_batch_size] for k in xrange(0, len(TrainData), mini_batch_size)]
-    for mini_batch in mini_batches[0:1]:
-        # forward feed
+    batch_counter = 0
+    for mini_batch in mini_batches:
+        batch_counter += 1
+        print 'Training round {0}, batch {1}/{2}'.format(TR+1,batch_counter,len(TrainData)/mini_batch_size)
+
+        # forward propagate
         image_batch = [[np.reshape(image, (InputH, InputW))] for image, label in TrainData[0:mini_batch_size] for i in
                        (1,)]
         CPLayerOut = CPLayer.calculate(image_batch)
         FLayerIn = flatten_poolingLayer_output(CPLayerOut)
         FLayerOut = FLayer.calculate(FLayerIn)
         SmLayerOut = SmLayer.calculate(FLayerOut)
-        delta = SmLayer.BP_initial_delta([label for image,label in TrainData[0:mini_batch_size]])
-        print 'ss'
+
+        # backward propagate
+        RefResult = [np.asarray(label).flatten() for image,label in TrainData[0:mini_batch_size]]
+
+        # train data accuracy
+        result = [int(out.argmax() == ref.argmax()) for out,ref in zip(SmLayerOut,RefResult)]
+        print 'Accuracy on train data: {0}'.format(np.asarray(result).mean())
+
+        delta = SmLayer.BP(eta, RefResult, FLayerOut)
+        delta = FLayer.BP(eta, delta, SmLayer, FLayerIn)
+        CPLayer.BP(eta,delta,FLayer,image_batch)

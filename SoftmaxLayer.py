@@ -21,5 +21,17 @@ class SoftmaxLayer(object):
         self.out = [softmax(im) for im in out]
         return self.out
 
-    def BP_initial_delta(self,RefResults):
-        return [(a-y) for a,y in zip(self.out,RefResults)]
+    def BP(self,eta, RefResults, previous_layer_out):
+        # return delta using log-likehood cost function
+        # and update weights / biases
+        # 'next_layer_delta' value is not used, just to keep the same API for different layers
+        self.delta = [(a-y) for a,y in zip(self.out,RefResults)]
+        nabla_w = [np.dot(a.reshape(len(a),1),d.reshape(1,len(d))) for d,a in zip(self.delta,previous_layer_out)]
+        nabla_w = np.sum(nabla_w,axis=0) / len(nabla_w)
+        nabla_b = np.sum(self.delta,axis=0) / len(self.delta)
+
+        # update network parameters
+        self.weights = self.weights - eta * nabla_w
+        self.biases = self.biases - eta * nabla_b
+
+        return self.delta
